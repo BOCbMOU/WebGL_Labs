@@ -2,16 +2,6 @@ import * as THREE from '../js/three.module.js';
 import THREE_CTRL from '../js/OrbitControl.js';
 
 const onWindowLoad = () => {
-  let data =
-    'dots:[-5,40,5 5,40,5 5,-40,5 -5,-40,5 -5,40,-5 5,40,-5 5,-40,-5 -5,-40,-5 -5,40,5 5,40,5 5,-40,5 -5,-40,5]' +
-    'paths:[0,1,2,3 4,7,6,5 4,5,1,0 2,6,7,3 5,6,2,1 0,3,7,4]' +
-    'dots:[-10,10,5 -20,40,5 -40,40,5 -30,10,5 -40,-40,5 -20,-40,5 -10,10,-5 -20,40,-5 -40,40,-5 -30,10,-5 -40,-40,-5 -20,-40,-5]' +
-    'paths:[0,1,2,3,4,5 6,7,8,9,10,11 0,1,7,6 1,2,8,7 2,3,9,8 3,4,10,9 4,5,11,10]' +
-    'dots:[10,10,5 20,40,5 40,40,5 30,10,5 40,-40,5 20,-40,5 10,10,-5 20,40,-5 40,40,-5 30,10,-5 40,-40,-5 20,-40,-5]' +
-    'paths:[0,1,2,3,4,5 6,7,8,9,10,11 0,1,7,6 1,2,8,7 2,3,9,8 3,4,10,9 4,5,11,10]';
-  // 'dots:[-10,-10,5 10,-10,5 10,10,15 -10,10,0 -10,-10,-5 10,-10,-5 10,10,-5 -10,10,-5]' +
-  // 'paths:[0,1,2,3 4,7,6,5 4,5,1,0 2,6,7,3 5,6,2,1 0,3,7,4]';
-
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(
     60,
@@ -19,12 +9,11 @@ const onWindowLoad = () => {
     0.1,
     1000
   );
-  camera.position.set(0, 0, 100);
+  camera.position.set(0, 0, 35);
 
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight, false);
   renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.localClippingEnabled = false;
 
   document.getElementById('canvas').appendChild(renderer.domElement);
 
@@ -36,71 +25,67 @@ const onWindowLoad = () => {
   scene.add(axesHelper);
 
   // add figures functions
-  const localPlane = new THREE.Plane(new THREE.Vector3(1, 1, 1), 10);
+  const addWireframe = (object, color = 0x000000) => {
+    const geo = new THREE.WireframeGeometry(object.geometry);
+    const mat = new THREE.LineBasicMaterial({
+      color,
+    });
+    const wireframe = new THREE.LineSegments(geo, mat);
+    object.add(wireframe);
+  };
 
   const createSurface = (size = {}, color = 0xffffff) => {
     const { width = 2000, height = width } = size;
     const geometry = new THREE.PlaneBufferGeometry(width, height);
-    const material = new THREE.MeshBasicMaterial({
-      color,
-      clippingPlanes: [localPlane],
-    });
+    const material = new THREE.MeshBasicMaterial({ color });
     const mesh = new THREE.Mesh(geometry, material);
     return mesh;
   };
 
-  const createLineLoop = (dots = [], color = 0xffffff) => {
-    if (dots.length < 2) {
-      return null;
-    }
-
-    const geometry = new THREE.Geometry();
-    for (const dot of dots) {
-      geometry.vertices.push(new THREE.Vector3(...dot));
-    }
-    // geometry.faces.push(
-    //   new THREE.Face3(...dots[0].map(d => Math.round(d / 20)))
-    // );
+  const createRectangle = (rectangleParams = {}, color = 0xffffff) => {
+    const { x = 1, y = x, z = x } = rectangleParams;
+    const geometry = new THREE.BoxGeometry(x, y, z);
     const material = new THREE.MeshBasicMaterial({
       color,
-      clippingPlanes: [localPlane],
+      opacity: 0.5,
+      transparent: true,
     });
-    return new THREE.LineLoop(geometry, material);
+    const rectangle = new THREE.Mesh(geometry, material);
+    return rectangle;
+  };
+
+  const createSphere = (sphereParams = {}, color = 0xffffff) => {
+    const {
+      r = 1,
+      widthSegments = 10,
+      heightSegments = widthSegments,
+    } = sphereParams;
+    const geometry = new THREE.SphereGeometry(r, widthSegments, heightSegments);
+    const material = new THREE.MeshBasicMaterial({
+      color,
+      opacity: 0.5,
+      transparent: true,
+    });
+    const sphere = new THREE.Mesh(geometry, material);
+    return sphere;
   };
 
   // add figures
-  const surface1 = createSurface({ width: 200, height: 100 }, 0x303030);
+  const surface1 = createSurface({ width: 40, height: 20 }, 0x303030);
   surface1.position.set(0, 0, -10);
   scene.add(surface1);
 
-  // main figure
-  const customShape = new THREE.Group();
-  let tempPos = data.indexOf('dots');
-  while (tempPos !== -1) {
-    const dots = data
-      .slice(data.indexOf('[', tempPos) + 1, data.indexOf(']', tempPos))
-      .split(' ')
-      .map(str => str.split(','));
-    tempPos = data.indexOf('paths');
-    const paths = data
-      .slice(data.indexOf('[', tempPos) + 1, data.indexOf(']', tempPos))
-      .split(' ')
-      .map(str => str.split(','));
+  const sphere1 = createSphere(
+    { r: 5, widthSegments: 10, heightSegments: 5 },
+    0x99aa33
+  );
+  addWireframe(sphere1);
+  scene.add(sphere1);
 
-    for (const path of paths) {
-      const localDots = [];
-      for (const i of path) {
-        localDots.push(dots[i]);
-      }
-      customShape.add(createLineLoop(localDots, 0xff0000));
-    }
-
-    data = data.slice(data.indexOf(']', tempPos) + 1);
-    tempPos = data.indexOf('dots');
-  }
-
-  customShape.position.set(0, 0, 0);
-  scene.add(customShape);
+  const rectangle1 = createRectangle({ x: 5 }, 0x33dddd);
+  addWireframe(rectangle1);
+  rectangle1.position.set(0, 0, 10);
+  scene.add(rectangle1);
 
   // rendering
   const animate = () => {
@@ -111,7 +96,7 @@ const onWindowLoad = () => {
   animate();
 
   // events
-  const objectsToChange = [customShape]; // objectsToChange
+  const objectsToChange = [sphere1, rectangle1]; // objectsToChange
 
   const position = (newPosition = {}, settings = { isSet: false }) => {
     const { isSet = false } = settings;

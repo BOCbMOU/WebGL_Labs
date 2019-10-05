@@ -112,6 +112,7 @@ const onWindowLoad = () => {
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight, false);
   renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.localClippingEnabled = false;
 
   document.getElementById('canvas').appendChild(renderer.domElement);
 
@@ -146,11 +147,16 @@ const onWindowLoad = () => {
   surface1.position.set(0, 0, -1);
   scene.add(surface1);
 
+  const localPlane = new THREE.Plane(new THREE.Vector3(-1, 2, 0), 0);
+
   const createLetter = (codes, points, pointsSize) => {
     let path = new THREE.Path();
 
     let arcComponent = null;
-    const material = new THREE.LineBasicMaterial({ color: 0xffffff });
+    const material = new THREE.LineBasicMaterial({
+      color: 0xffffff,
+      clippingPlanes: [localPlane],
+    });
 
     for (const code of codes) {
       if (code < 0) {

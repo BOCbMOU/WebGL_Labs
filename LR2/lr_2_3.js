@@ -25,6 +25,7 @@ const onWindowLoad = () => {
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight, false);
   renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.localClippingEnabled = true;
 
   document.getElementById('canvas').appendChild(renderer.domElement);
 
@@ -59,14 +60,13 @@ const onWindowLoad = () => {
   }
 
   nurbsControlPoints.push(new THREE.Vector4(0, -40, 1, 1));
-  nurbsControlPoints.push(new THREE.Vector4(-50, 10, 1, 1));
-  nurbsControlPoints.push(new THREE.Vector4(-20, 40, 1, 1));
+  nurbsControlPoints.push(new THREE.Vector4(-55, 5, 1, 1));
+  nurbsControlPoints.push(new THREE.Vector4(-22, 40, 1, 1));
   nurbsControlPoints.push(new THREE.Vector4(0, 20, 1, 1));
-  nurbsControlPoints.push(new THREE.Vector4(20, 40, 1, 1));
-  nurbsControlPoints.push(new THREE.Vector4(50, 10, 1, 1));
+  nurbsControlPoints.push(new THREE.Vector4(22, 40, 1, 1));
+  nurbsControlPoints.push(new THREE.Vector4(55, 5, 1, 1));
   nurbsControlPoints.push(new THREE.Vector4(0, -40, 1, 1));
 
-  // 0 < knot < 1
   nurbsKnots.push(0.1);
   nurbsKnots.push(0.2);
   nurbsKnots.push(0.2);
@@ -96,7 +96,9 @@ const onWindowLoad = () => {
 
   const nurbsGeometry = new THREE.BufferGeometry();
   nurbsGeometry.setFromPoints(nurbsCurve.getPoints(140));
-  const nurbsMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 });
+  const nurbsMaterial = new THREE.LineBasicMaterial({
+    color: 0xff0000,
+  });
   const nurbsLine = new THREE.Line(nurbsGeometry, nurbsMaterial);
   // nurbsLine.position.set(width / -2, height / -2, 0);
   scene.add(nurbsLine);

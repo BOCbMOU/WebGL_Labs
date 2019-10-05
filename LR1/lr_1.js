@@ -7,8 +7,8 @@ const onWindowLoad = () => {
 
   const board = {
     x: {
-      max: 100,
-      min: -100,
+      max: 200,
+      min: -200,
     },
     y: {
       max: 100,
@@ -27,7 +27,7 @@ const onWindowLoad = () => {
     results.push({ x: i, y: func(i) });
   }
 
-  const scale = 8;
+  const scale = 6;
 
   // settings
   const scene = new THREE.Scene();
