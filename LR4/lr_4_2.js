@@ -4,12 +4,12 @@ import THREE_CTRL from '../js/OrbitControl.js';
 const onWindowLoad = () => {
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(
-    60,
+    30,
     window.innerWidth / window.innerHeight,
     0.1,
     1000
   );
-  camera.position.set(0, 0, 35);
+  camera.position.set(0, 0, 200);
 
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight, false);
@@ -18,7 +18,7 @@ const onWindowLoad = () => {
   document.getElementById('canvas').appendChild(renderer.domElement);
 
   // camera
-  const controls = new THREE_CTRL.OrbitControls(camera, renderer.domElement);
+  // const controls = new THREE_CTRL.OrbitControls(camera, renderer.domElement);
 
   // add axis
   const axesHelper = new THREE.AxesHelper(10);
@@ -71,20 +71,20 @@ const onWindowLoad = () => {
   };
 
   // add figures
-  const surface1 = createSurface({ width: 40, height: 20 }, 0x303030);
-  surface1.position.set(0, 0, -10);
+  const surface1 = createSurface({ width: 200, height: 100 }, 0x303030);
+  surface1.position.set(0, 0, -20);
   scene.add(surface1);
 
   const sphere1 = createSphere(
-    { r: 5, widthSegments: 10, heightSegments: 5 },
+    { r: 20, widthSegments: 10, heightSegments: 5 },
     0x99aa33
   );
   addWireframe(sphere1);
   scene.add(sphere1);
 
-  const rectangle1 = createRectangle({ x: 5 }, 0x33dddd);
+  const rectangle1 = createRectangle({ x: 20 }, 0x33dddd);
   addWireframe(rectangle1);
-  rectangle1.position.set(0, 0, 10);
+  rectangle1.position.set(30, 0, 30);
   scene.add(rectangle1);
 
   // rendering
@@ -113,6 +113,7 @@ const onWindowLoad = () => {
         );
       }
     }
+    updateLookAt();
   };
 
   const rotation = (
@@ -135,6 +136,28 @@ const onWindowLoad = () => {
         );
       }
     }
+    updateLookAt();
+  };
+
+  const scale = (newScale = 1, settings = {}) => {
+    const { isSet = false } = settings;
+
+    if (isSet) {
+      objectsToChange.map(obj => obj.scale.set(newScale, newScale, newScale));
+      return;
+    }
+
+    objectsToChange.map(obj => {
+      obj.scale.x += newScale;
+      obj.scale.y += newScale;
+      obj.scale.z += newScale;
+    });
+    updateLookAt();
+  };
+
+  const updateLookAt = () => {
+    const { x, y, z } = sphere1.position;
+    camera.lookAt(x, y, z);
   };
 
   const onKeyDown = event => {
@@ -142,16 +165,16 @@ const onWindowLoad = () => {
 
     switch (event.keyCode) {
       case 87:
-        position({ y: 0.5 });
+        position({ y: 1 });
         break;
       case 68:
-        position({ x: 0.5 });
+        position({ x: 1 });
         break;
       case 83:
-        position({ y: -0.5 });
+        position({ y: -1 });
         break;
       case 65:
-        position({ x: -0.5 });
+        position({ x: -1 });
         break;
       case 81:
         rotation({ y: -0.05 });
@@ -170,6 +193,12 @@ const onWindowLoad = () => {
         break;
       case 90:
         rotation({ z: 0.05 }, { isAlternate: true });
+        break;
+      case 107:
+        scale(0.1);
+        break;
+      case 109:
+        scale(-0.1);
         break;
       default:
         break;

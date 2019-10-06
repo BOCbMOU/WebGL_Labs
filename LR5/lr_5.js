@@ -3,12 +3,21 @@ import THREE_CTRL from '../js/OrbitControl.js';
 
 const onWindowLoad = () => {
   let data =
+    'shape:{' +
+    'dots:[-10,40,5 -40,-40,5 -20,-40,5 -12.5,-20,5 12.5,-20,5 20,-40,5 40,-40,5 10,40,5 ' +
+    '-10,40,-5 -40,-40,-5 -20,-40,-5 -12.5,-20,-5 12.5,-20,-5 20,-40,-5 40,-40,-5 10,40,-5]' +
+    'paths:[0,1,2,3,4,5,6,7 8,9,10,11,12,13,14,15 0,1,9,8 1,2,10,9 2,3,11,10 3,4,12,11 4,5,13,12 5,6,14,13 6,7,15,14 7,0,8,15]' +
+    'dots:[-7,-5,5 0,13.5,5 7,-5,5 -7,-5,-5 0,13.5,-5 7,-5,-5]' +
+    'paths:[0,1,2 3,4,5 0,1,4,3 1,2,5,4 2,0,3,5]' +
+    '}' +
+    'shape:{' +
     'dots:[-5,40,5 5,40,5 5,-40,5 -5,-40,5 -5,40,-5 5,40,-5 5,-40,-5 -5,-40,-5 -5,40,5 5,40,5 5,-40,5 -5,-40,5]' +
     'paths:[0,1,2,3 4,7,6,5 4,5,1,0 2,6,7,3 5,6,2,1 0,3,7,4]' +
     'dots:[-10,10,5 -20,40,5 -40,40,5 -30,10,5 -40,-40,5 -20,-40,5 -10,10,-5 -20,40,-5 -40,40,-5 -30,10,-5 -40,-40,-5 -20,-40,-5]' +
     'paths:[0,1,2,3,4,5 6,7,8,9,10,11 0,1,7,6 1,2,8,7 2,3,9,8 3,4,10,9 4,5,11,10]' +
     'dots:[10,10,5 20,40,5 40,40,5 30,10,5 40,-40,5 20,-40,5 10,10,-5 20,40,-5 40,40,-5 30,10,-5 40,-40,-5 20,-40,-5]' +
-    'paths:[0,1,2,3,4,5 6,7,8,9,10,11 0,1,7,6 1,2,8,7 2,3,9,8 3,4,10,9 4,5,11,10]';
+    'paths:[0,1,2,3,4,5 6,7,8,9,10,11 0,1,7,6 1,2,8,7 2,3,9,8 3,4,10,9 4,5,11,10]' +
+    '}';
   // 'dots:[-10,-10,5 10,-10,5 10,10,15 -10,10,0 -10,-10,-5 10,-10,-5 10,10,-5 -10,10,-5]' +
   // 'paths:[0,1,2,3 4,7,6,5 4,5,1,0 2,6,7,3 5,6,2,1 0,3,7,4]';
 
@@ -54,16 +63,13 @@ const onWindowLoad = () => {
       return null;
     }
 
-    const geometry = new THREE.Geometry();
-    for (const dot of dots) {
-      geometry.vertices.push(new THREE.Vector3(...dot));
-    }
-    // geometry.faces.push(
-    //   new THREE.Face3(...dots[0].map(d => Math.round(d / 20)))
-    // );
+    const geometry = new THREE.BufferGeometry();
+    geometry.addAttribute(
+      'position',
+      new THREE.Float32BufferAttribute(dots, 3)
+    );
     const material = new THREE.MeshBasicMaterial({
       color,
-      clippingPlanes: [localPlane],
     });
     return new THREE.LineLoop(geometry, material);
   };
@@ -74,33 +80,48 @@ const onWindowLoad = () => {
   scene.add(surface1);
 
   // main figure
-  const customShape = new THREE.Group();
-  let tempPos = data.indexOf('dots');
-  while (tempPos !== -1) {
-    const dots = data
-      .slice(data.indexOf('[', tempPos) + 1, data.indexOf(']', tempPos))
-      .split(' ')
-      .map(str => str.split(','));
-    tempPos = data.indexOf('paths');
-    const paths = data
-      .slice(data.indexOf('[', tempPos) + 1, data.indexOf(']', tempPos))
-      .split(' ')
-      .map(str => str.split(','));
+  const letters = [];
 
-    for (const path of paths) {
-      const localDots = [];
-      for (const i of path) {
-        localDots.push(dots[i]);
+  let tempPos1 = data.indexOf('shape');
+  for (let xShift = 0; tempPos1 !== -1; xShift++) {
+    const customShape = new THREE.Group();
+    customShape.position.set(-50 + xShift * 100, 0, 0);
+
+    const endShape = data.indexOf('}', tempPos1);
+
+    let tempPos2 = data.indexOf('dots', tempPos1);
+    while (tempPos2 !== -1) {
+      const dots = data
+        .slice(data.indexOf('[', tempPos2) + 1, data.indexOf(']', tempPos2))
+        .split(' ')
+        .map(str => str.split(','));
+      tempPos2 = data.indexOf('paths', tempPos2);
+      const paths = data
+        .slice(data.indexOf('[', tempPos2) + 1, data.indexOf(']', tempPos2))
+        .split(' ')
+        .map(str => str.split(','));
+
+      for (const path of paths) {
+        const localDots = [];
+        for (const i of path) {
+          localDots.push(...dots[i]);
+        }
+        customShape.add(createLineLoop(localDots, 0xff0000));
       }
-      customShape.add(createLineLoop(localDots, 0xff0000));
+
+      tempPos2 = data.indexOf('dots', tempPos2);
+      if (tempPos2 > endShape) {
+        break;
+      }
     }
 
-    data = data.slice(data.indexOf(']', tempPos) + 1);
-    tempPos = data.indexOf('dots');
+    letters.push(customShape);
+    tempPos1 = data.indexOf('shape', endShape);
   }
 
-  customShape.position.set(0, 0, 0);
-  scene.add(customShape);
+  letters.map(shape => scene.add(shape));
+
+  // camera.lookAt(...Object.values(letters[0].position));
 
   // rendering
   const animate = () => {
@@ -111,16 +132,17 @@ const onWindowLoad = () => {
   animate();
 
   // events
-  const objectsToChange = [customShape]; // objectsToChange
+  const objectsToChange = [...letters]; // objectsToChange
 
   const position = (newPosition = {}, settings = { isSet: false }) => {
     const { isSet = false } = settings;
 
     if (isSet) {
-      const { x = 0, y = 0, z = 0 } = position;
+      const { x = 0, y = 0, z = 0 } = newPosition;
       objectsToChange.map(obj => obj.position.set(x, y, z));
       return;
     }
+
     for (const axis in newPosition) {
       if (axis) {
         objectsToChange.map(
@@ -130,17 +152,15 @@ const onWindowLoad = () => {
     }
   };
 
-  const rotation = (
-    newRotation = {},
-    settings = { isSet: false, isAlternate: false }
-  ) => {
-    const { isSet = false, isAlternate } = settings;
+  const rotation = (newRotation = {}, settings = {}) => {
+    const { isSet = false, isAlternate = false } = settings;
 
     if (isSet) {
-      const { x = 0, y = 0, z = 0 } = position;
+      const { x = 0, y = 0, z = 0 } = newRotation;
       objectsToChange.map(obj => obj.rotation.set(x, y, z));
       return;
     }
+
     for (const axis in newRotation) {
       if (axis) {
         objectsToChange.map(
@@ -152,21 +172,36 @@ const onWindowLoad = () => {
     }
   };
 
+  const scale = (newScale = 1, settings = {}) => {
+    const { isSet = false } = settings;
+
+    if (isSet) {
+      objectsToChange.map(obj => obj.scale.set(newScale, newScale, newScale));
+      return;
+    }
+
+    objectsToChange.map(obj => {
+      obj.scale.x += newScale;
+      obj.scale.y += newScale;
+      obj.scale.z += newScale;
+    });
+  };
+
   const onKeyDown = event => {
     // event.preventDefault();
 
     switch (event.keyCode) {
       case 87:
-        position({ y: 0.5 });
+        position({ y: 1 });
         break;
       case 68:
-        position({ x: 0.5 });
+        position({ x: 1 });
         break;
       case 83:
-        position({ y: -0.5 });
+        position({ y: -1 });
         break;
       case 65:
-        position({ x: -0.5 });
+        position({ x: -1 });
         break;
       case 81:
         rotation({ y: -0.05 });
@@ -185,6 +220,12 @@ const onWindowLoad = () => {
         break;
       case 90:
         rotation({ z: 0.05 }, { isAlternate: true });
+        break;
+      case 107:
+        scale(0.1);
+        break;
+      case 109:
+        scale(-0.1);
         break;
       default:
         break;

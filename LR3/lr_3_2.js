@@ -112,6 +112,8 @@ const onWindowLoad = () => {
 
   letters.map(shape => scene.add(shape));
 
+  // camera.lookAt(...Object.values(letters[0].position));
+
   // rendering
   const animate = () => {
     requestAnimationFrame(animate);
