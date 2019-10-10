@@ -25,7 +25,7 @@ const onWindowLoad = () => {
     0.1,
     2000
   );
-  camera.position.set(0, 0, 200);
+  camera.position.set(0, 0, 350);
 
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight, false);
@@ -66,8 +66,8 @@ const onWindowLoad = () => {
   };
 
   // add figures
-  const surface1 = createSurface({ width: 200, height: 100 }, 0x303030);
-  surface1.position.set(0, 0, -10);
+  const surface1 = createSurface({ width: 400, height: 200 }, 0x101010);
+  surface1.position.set(0, 0, -50);
   scene.add(surface1);
 
   // main figure
@@ -157,7 +157,9 @@ const onWindowLoad = () => {
         objectsToChange.map(
           (obj, i) =>
             (obj.rotation[axis] +=
-              newRotation[axis] * (isAlternate && i % 2 === 0 ? -1 : 1) || 0)
+              (isAlternate && i % 2 === 0
+                ? newRotation[axis] * -1
+                : newRotation[axis]) || 0)
         );
       }
     }
