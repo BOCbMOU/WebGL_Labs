@@ -22,11 +22,11 @@ const onWindowLoad = () => {
 
   const polyData =
     'shape:{' +
-    'dots:[-10,40,5 -40,-40,5 -20,-40,5 -12.5,-20,5 12.5,-20,5 20,-40,5 40,-40,5 10,40,5 ' +
-    '-10,40,-5 -40,-40,-5 -20,-40,-5 -12.5,-20,-5 12.5,-20,-5 20,-40,-5 40,-40,-5 10,40,-5]' +
-    'faces:[0,1,2,3,4,5,6,7 15,14,13,12,11,10,9,8 8,9,1,0 9,10,2,1 10,11,3,2 11,12,4,3 12,13,5,4 13,14,6,5 14,15,7,6 15,8,0,7]' +
-    'dots:[-7,-5,5 0,13.5,5 7,-5,5 -7,-5,-5 0,13.5,-5 7,-5,-5]' +
-    'faces:[0,1,4,3 1,2,5,4 2,0,3,5]' +
+    'dots:[-10,40,5 -40,-40,5 -20,-40,5 0,13.5,5 20,-40,5 40,-40,5 10,40,5 ' +
+    '-10,40,-5 -40,-40,-5 -20,-40,-5 0,13.5,-5 20,-40,-5 40,-40,-5 10,40,-5]' +
+    'faces:[0,1,2,3,4,5,6 13,12,11,10,9,8,7 0,6,13,7 7,8,1,0 8,9,2,1 9,10,3,2 10,11,4,3 11,12,5,4 12,13,6,5]' +
+    'dots:[-5,-5,5 5,-5,5 10.5,-20,5 -10.5,-20,5 -5,-5,-5 5,-5,-5 10.5,-20,-5 -10.5,-20,-5]' +
+    'faces:[0,3,2,1 5,6,7,4 0,1,5,4 1,2,6,5 2,3,7,6 3,0,4,7]' +
     '}' +
     'shape:{' +
     'dots:[-5,40,5 5,40,5 5,-40,5 -5,-40,5 -5,40,-5 5,40,-5 5,-40,-5 -5,-40,-5 -5,40,5 5,40,5 5,-40,5 -5,-40,5]' +
@@ -175,69 +175,49 @@ const onWindowLoad = () => {
 
   lettersMesh.map(shape => scene.add(shape));
 
-  //-----
+  // main figure
+  // const letters = [];
 
-  // const vertices = tVert.split(/[, ]/).map(Number);
-  // const holes = [];
-  // const geometry = new THREE.Geometry();
+  // tempPos1 = data.indexOf('shape');
+  // for (let xShift = 0; tempPos1 !== -1; xShift++) {
+  //   const customShape = new THREE.Group();
+  //   customShape.position.set(-50 + xShift * 100, 0, 0);
 
-  // geometry.vertices = vertices;
+  //   const endShape = data.indexOf('}', tempPos1);
 
-  // const triangles = ShapeUtils.triangulateShape(vertices, holes);
-  // console.log('TCL: triangles', triangles);
+  //   let tempPos2 = data.indexOf('dots', tempPos1);
+  //   while (tempPos2 !== -1) {
+  //     const dots = data
+  //       .slice(data.indexOf('[', tempPos2) + 1, data.indexOf(']', tempPos2))
+  //       .split(' ')
+  //       .map(str => str.split(','));
+  //     tempPos2 = data.indexOf('paths', tempPos2);
+  //     const paths = data
+  //       .slice(data.indexOf('[', tempPos2) + 1, data.indexOf(']', tempPos2))
+  //       .split(' ')
+  //       .map(str => str.split(','));
 
-  // for (let i = 0; i < triangles.length; i++) {
-  //   geometry.faces.push(new THREE.Face3(...triangles[i]));
+  //     for (const path of paths) {
+  //       const localDots = [];
+  //       for (const i of path) {
+  //         localDots.push(...dots[i]);
+  //       }
+  //       customShape.add(createLineLoop(localDots, 0xff0000));
+  //     }
+
+  //     tempPos2 = data.indexOf('dots', tempPos2);
+  //     if (tempPos2 > endShape) {
+  //       break;
+  //     }
+  //   }
+
+  //   customShape.castShadow = true;
+  //   customShape.receiveShadow = true;
+  //   letters.push(customShape);
+  //   tempPos1 = data.indexOf('shape', endShape);
   // }
 
-  // geometry.computeFaceNormals();
-  // const mesh2 = new THREE.Mesh(geometry, material);
-  // mesh2.position.set(-25, 0, 0);
-  // scene.add(mesh2);
-
-  // main figure
-  const letters = [];
-
-  tempPos1 = data.indexOf('shape');
-  for (let xShift = 0; tempPos1 !== -1; xShift++) {
-    const customShape = new THREE.Group();
-    customShape.position.set(-50 + xShift * 100, 0, 0);
-
-    const endShape = data.indexOf('}', tempPos1);
-
-    let tempPos2 = data.indexOf('dots', tempPos1);
-    while (tempPos2 !== -1) {
-      const dots = data
-        .slice(data.indexOf('[', tempPos2) + 1, data.indexOf(']', tempPos2))
-        .split(' ')
-        .map(str => str.split(','));
-      tempPos2 = data.indexOf('paths', tempPos2);
-      const paths = data
-        .slice(data.indexOf('[', tempPos2) + 1, data.indexOf(']', tempPos2))
-        .split(' ')
-        .map(str => str.split(','));
-
-      for (const path of paths) {
-        const localDots = [];
-        for (const i of path) {
-          localDots.push(...dots[i]);
-        }
-        customShape.add(createLineLoop(localDots, 0xff0000));
-      }
-
-      tempPos2 = data.indexOf('dots', tempPos2);
-      if (tempPos2 > endShape) {
-        break;
-      }
-    }
-
-    customShape.castShadow = true;
-    customShape.receiveShadow = true;
-    letters.push(customShape);
-    tempPos1 = data.indexOf('shape', endShape);
-  }
-
-  letters.map(shape => scene.add(shape));
+  // letters.map(shape => scene.add(shape));
 
   // ambient light
   const ambient = new THREE.AmbientLight(0xffffff, 0.005);
@@ -299,56 +279,12 @@ const onWindowLoad = () => {
 
     lightMoveDirection++;
 
-    // cube1.rotation.y += 0.03;
-
-    // switch (lightMoveDirection) {
-    //   case 0:
-    //     pointLight.position.x += 0.04;
-    //     if (pointLight.position.x >= 4) {
-    //       lightMoveDirection++;
-    //     }
-    //     break;
-    //   case 1:
-    //     pointLight.position.y -= 0.03;
-    //     pointLight.position.z -= 0.03;
-    //     if (pointLight.position.z <= -4) {
-    //       lightMoveDirection++;
-    //     }
-    //     break;
-    //   case 2:
-    //     pointLight.position.x -= 0.04;
-    //     if (pointLight.position.x <= -4) {
-    //       lightMoveDirection++;
-    //     }
-    //     break;
-    //   case 3:
-    //     pointLight.position.z += 0.04;
-    //     if (pointLight.position.z >= 0) {
-    //       lightMoveDirection++;
-    //     }
-    //     break;
-    //   case 4:
-    //     pointLight.position.y += 0.04;
-    //     if (pointLight.position.y >= 4) {
-    //       lightMoveDirection++;
-    //     }
-    //     break;
-    //   case 5:
-    //     pointLight.position.z += 0.04;
-    //     if (pointLight.position.z >= 4) {
-    //       lightMoveDirection = 0;
-    //     }
-    //     break;
-    //   default:
-    //     break;
-    // }
-
     renderer.render(scene, camera);
   };
   animate();
 
   // events
-  const objectsToChange = []; //[cube1]; // objectsToChange
+  const objectsToChange = [...lettersMesh]; //[cube1]; // objectsToChange
 
   const position = (newPosition = {}, settings = { isSet: false }) => {
     const { isSet = false } = settings;
