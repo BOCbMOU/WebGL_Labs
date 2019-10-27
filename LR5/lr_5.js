@@ -75,8 +75,8 @@ const onWindowLoad = () => {
   };
 
   // add figures
-  const surface1 = createSurface({ width: 200, height: 100 }, 0x303030);
-  surface1.position.set(0, 0, -10);
+  const surface1 = createSurface({ width: 2000, height: 1000 }, 0x202020);
+  surface1.position.set(0, 0, -100);
   scene.add(surface1);
 
   // main figure

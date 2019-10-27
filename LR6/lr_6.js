@@ -3,28 +3,11 @@ import THREE_CTRL from '../js/OrbitControl.js';
 // import ShapeUtils from '../js/ShapeUtils.js';
 
 const onWindowLoad = () => {
-  const data =
-    'shape:{' +
-    'dots:[-10,40,5 -40,-40,5 -20,-40,5 -12.5,-20,5 12.5,-20,5 20,-40,5 40,-40,5 10,40,5 ' +
-    '-10,40,-5 -40,-40,-5 -20,-40,-5 -12.5,-20,-5 12.5,-20,-5 20,-40,-5 40,-40,-5 10,40,-5]' +
-    'paths:[0,1,2,3,4,5,6,7 8,9,10,11,12,13,14,15 0,1,9,8 1,2,10,9 2,3,11,10 3,4,12,11 4,5,13,12 5,6,14,13 6,7,15,14 7,0,8,15]' +
-    'dots:[-7,-5,5 0,13.5,5 7,-5,5 -7,-5,-5 0,13.5,-5 7,-5,-5]' +
-    'paths:[0,1,2 3,4,5 0,1,4,3 1,2,5,4 2,0,3,5]' +
-    '}' +
-    'shape:{' +
-    'dots:[-5,40,5 5,40,5 5,-40,5 -5,-40,5 -5,40,-5 5,40,-5 5,-40,-5 -5,-40,-5 -5,40,5 5,40,5 5,-40,5 -5,-40,5]' +
-    'paths:[0,1,2,3 4,7,6,5 4,5,1,0 2,6,7,3 5,6,2,1 0,3,7,4]' +
-    'dots:[-10,0,5 -20,40,5 -40,40,5 -30,0,5 -40,-40,5 -20,-40,5 -10,0,-5 -20,40,-5 -40,40,-5 -30,0,-5 -40,-40,-5 -20,-40,-5]' +
-    'paths:[0,1,2,3,4,5 6,7,8,9,10,11 0,1,7,6 1,2,8,7 2,3,9,8 3,4,10,9 4,5,11,10]' +
-    'dots:[10,0,5 20,40,5 40,40,5 30,0,5 40,-40,5 20,-40,5 10,0,-5 20,40,-5 40,40,-5 30,0,-5 40,-40,-5 20,-40,-5]' +
-    'paths:[0,1,2,3,4,5 6,7,8,9,10,11 0,1,7,6 1,2,8,7 2,3,9,8 3,4,10,9 4,5,11,10]' +
-    '}';
-
   const polyData =
     'shape:{' +
     'dots:[-10,40,5 -40,-40,5 -20,-40,5 0,13.5,5 20,-40,5 40,-40,5 10,40,5 ' +
-    '-10,40,-5 -40,-40,-5 -20,-40,-5 0,13.5,-5 20,-40,-5 40,-40,-5 10,40,-5]' +
-    'faces:[0,1,2,3,4,5,6 13,12,11,10,9,8,7 0,6,13,7 7,8,1,0 8,9,2,1 9,10,3,2 10,11,4,3 11,12,5,4 12,13,6,5]' +
+    '-10,40,-5 -40,-40,-5 -20,-40,-5 0,13.5,-5 20,-40,-5 40,-40,-5 10,40,-5 0,40,5 0,40,-5]' +
+    'faces:[14,0,1,2,3,4,5,6 15,13,12,11,10,9,8,7 0,6,13,7 7,8,1,0 8,9,2,1 9,10,3,2 10,11,4,3 11,12,5,4 12,13,6,5]' +
     'dots:[-5,-5,5 5,-5,5 10.5,-20,5 -10.5,-20,5 -5,-5,-5 5,-5,-5 10.5,-20,-5 -10.5,-20,-5]' +
     'faces:[0,3,2,1 5,6,7,4 0,1,5,4 1,2,6,5 2,3,7,6 3,0,4,7]' +
     '}' +
@@ -41,7 +24,7 @@ const onWindowLoad = () => {
   const camera = new THREE.PerspectiveCamera(
     30,
     window.innerWidth / window.innerHeight,
-    0.1,
+    1,
     1000
   );
   camera.position.set(0, 100, 300);
@@ -73,22 +56,6 @@ const onWindowLoad = () => {
     });
     const mesh = new THREE.Mesh(geometry, material);
     return mesh;
-  };
-
-  const createLineLoop = (dots = [], color = 0xffffff) => {
-    if (dots.length < 2) {
-      return null;
-    }
-
-    const geometry = new THREE.BufferGeometry();
-    geometry.addAttribute(
-      'position',
-      new THREE.Float32BufferAttribute(dots, 3)
-    );
-    const material = new THREE.MeshPhongMaterial({
-      color,
-    });
-    return new THREE.LineLoop(geometry, material);
   };
 
   const createCustomShape = (vertices = [], faces = [], color = 0xffffff) => {
@@ -125,6 +92,12 @@ const onWindowLoad = () => {
   surface1.position.set(0, 0, -10);
   surface1.receiveShadow = true;
   scene.add(surface1);
+
+  const surface2 = createSurface({ width: 300, height: 100 }, 0x303030);
+  surface2.position.set(50, 0, 30);
+  surface2.rotation.x = Math.PI;
+  surface2.receiveShadow = true;
+  scene.add(surface2);
 
   // const tVert = '0,0,0 50,0,0 50,50,0 0,50,0 -50,25,10';
   // const vertices = tVert.split(/ /).map(str => str.split(/,/));
@@ -175,61 +148,18 @@ const onWindowLoad = () => {
 
   lettersMesh.map(shape => scene.add(shape));
 
-  // main figure
-  // const letters = [];
-
-  // tempPos1 = data.indexOf('shape');
-  // for (let xShift = 0; tempPos1 !== -1; xShift++) {
-  //   const customShape = new THREE.Group();
-  //   customShape.position.set(-50 + xShift * 100, 0, 0);
-
-  //   const endShape = data.indexOf('}', tempPos1);
-
-  //   let tempPos2 = data.indexOf('dots', tempPos1);
-  //   while (tempPos2 !== -1) {
-  //     const dots = data
-  //       .slice(data.indexOf('[', tempPos2) + 1, data.indexOf(']', tempPos2))
-  //       .split(' ')
-  //       .map(str => str.split(','));
-  //     tempPos2 = data.indexOf('paths', tempPos2);
-  //     const paths = data
-  //       .slice(data.indexOf('[', tempPos2) + 1, data.indexOf(']', tempPos2))
-  //       .split(' ')
-  //       .map(str => str.split(','));
-
-  //     for (const path of paths) {
-  //       const localDots = [];
-  //       for (const i of path) {
-  //         localDots.push(...dots[i]);
-  //       }
-  //       customShape.add(createLineLoop(localDots, 0xff0000));
-  //     }
-
-  //     tempPos2 = data.indexOf('dots', tempPos2);
-  //     if (tempPos2 > endShape) {
-  //       break;
-  //     }
-  //   }
-
-  //   customShape.castShadow = true;
-  //   customShape.receiveShadow = true;
-  //   letters.push(customShape);
-  //   tempPos1 = data.indexOf('shape', endShape);
-  // }
-
-  // letters.map(shape => scene.add(shape));
-
   // ambient light
-  const ambient = new THREE.AmbientLight(0xffffff, 0.005);
-  scene.add(ambient);
+  // const ambient = new THREE.AmbientLight(0xffffff, 0.005);
+  // scene.add(ambient);
 
+  // spot light
   const spotLight = new THREE.SpotLight(0xffffff, 1);
-  spotLight.position.set(-100, 50, 200);
+  spotLight.position.set(-100, 50, -200);
   spotLight.angle = Math.PI / 10;
-  spotLight.intensity = 2;
-  spotLight.penumbra = 0.2;
+  spotLight.intensity = 4;
+  spotLight.penumbra = 1;
   spotLight.decay = 2;
-  spotLight.distance = 300;
+  spotLight.distance = 500;
 
   spotLight.castShadow = true;
   spotLight.shadow.mapSize.width = 1024;
@@ -238,34 +168,35 @@ const onWindowLoad = () => {
   spotLight.shadow.camera.far = 300;
 
   scene.add(spotLight);
+
   // spotLight.target.position.set(-20, 0, 0);
   // scene.add(spotLight.target);
 
-  // const lightHelper = new THREE.SpotLightHelper(spotLight);
-  // scene.add(lightHelper);
+  const lightHelper = new THREE.SpotLightHelper(spotLight);
+  scene.add(lightHelper);
 
   // const shadowCameraHelper = new THREE.CameraHelper(spotLight.shadow.camera);
   // scene.add(shadowCameraHelper);
 
   // moving light
   const pointLight = new THREE.PointLight(0xff9933, 4, 100, 2);
-  pointLight.position.set(0, 0, 25);
-  pointLight.distance = 60;
+  pointLight.position.set(0, 0, 40);
+  pointLight.distance = 200;
   // pointLight.intensity = 1;
   pointLight.decay = 2;
   scene.add(pointLight);
 
   pointLight.castShadow = true;
 
-  const sphereSize = 1;
+  const sphereSize = 5;
   const pointLightHelper = new THREE.PointLightHelper(pointLight, sphereSize);
   scene.add(pointLightHelper);
 
   // rendering
   let lightMoveDirection = 0;
   const PI = Math.PI;
-  const rX = 80;
-  const rY = 40;
+  const rX = 90;
+  const rY = 50;
 
   const animate = () => {
     requestAnimationFrame(animate);
@@ -275,7 +206,7 @@ const onWindowLoad = () => {
     }
 
     pointLight.position.x = rX * Math.cos((PI * lightMoveDirection) / 200);
-    pointLight.position.y = rY * Math.sin((PI * lightMoveDirection) / 200);
+    pointLight.position.y = rY * Math.sin((PI * lightMoveDirection) / 100);
 
     lightMoveDirection++;
 
@@ -284,7 +215,7 @@ const onWindowLoad = () => {
   animate();
 
   // events
-  const objectsToChange = [...lettersMesh]; //[cube1]; // objectsToChange
+  const objectsToChange = [...lettersMesh]; // objectsToChange
 
   const position = (newPosition = {}, settings = { isSet: false }) => {
     const { isSet = false } = settings;
@@ -318,7 +249,9 @@ const onWindowLoad = () => {
         objectsToChange.map(
           (obj, i) =>
             (obj.rotation[axis] +=
-              newRotation[axis] * (isAlternate && i % 2 === 0 ? -1 : 1) || 0)
+              (isAlternate && i % 2 === 0
+                ? newRotation[axis] * -1
+                : newRotation[axis]) || 0)
         );
       }
     }

@@ -6,10 +6,10 @@ const onWindowLoad = () => {
   const camera = new THREE.PerspectiveCamera(
     30,
     window.innerWidth / window.innerHeight,
-    0.1,
-    1000
+    1,
+    2000
   );
-  camera.position.set(0, 0, 200);
+  camera.position.set(0, 100, 200);
 
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight, false);
@@ -71,12 +71,12 @@ const onWindowLoad = () => {
   };
 
   // add figures
-  const surface1 = createSurface({ width: 200, height: 100 }, 0x303030);
-  surface1.position.set(0, 0, -20);
+  const surface1 = createSurface({ width: 2000, height: 1000 }, 0x303030);
+  surface1.position.set(0, 0, -100);
   scene.add(surface1);
 
   const sphere1 = createSphere(
-    { r: 20, widthSegments: 10, heightSegments: 5 },
+    { r: 50, widthSegments: 10, heightSegments: 2 },
     0x99aa33
   );
   addWireframe(sphere1);
@@ -84,7 +84,7 @@ const onWindowLoad = () => {
 
   const rectangle1 = createRectangle({ x: 20 }, 0x33dddd);
   addWireframe(rectangle1);
-  rectangle1.position.set(30, 0, 30);
+  rectangle1.position.set(0, 0, 0);
   scene.add(rectangle1);
 
   // rendering
@@ -159,22 +159,23 @@ const onWindowLoad = () => {
     const { x, y, z } = sphere1.position;
     camera.lookAt(x, y, z);
   };
+  updateLookAt();
 
   const onKeyDown = event => {
     // event.preventDefault();
 
     switch (event.keyCode) {
       case 87:
-        position({ y: 1 });
+        position({ y: 5 });
         break;
       case 68:
-        position({ x: 1 });
+        position({ x: 5 });
         break;
       case 83:
-        position({ y: -1 });
+        position({ y: -5 });
         break;
       case 65:
-        position({ x: -1 });
+        position({ x: -5 });
         break;
       case 81:
         rotation({ y: -0.05 });
